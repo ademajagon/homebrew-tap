@@ -1,0 +1,72 @@
+name: Update Formula
+
+on:
+  repository_dispatch:
+    types: [formula-update]
+
+  workflow_dispatch:
+    inputs:
+      product:
+        description: "Product name (must match META.d/<product>.hcl)"
+        required: true
+        default: "gix"
+      version:
+        description: "Version to update to (e.g. v0.2.7)"
+        required: true
+
+jobs:
+  update:
+    name: Update ${{ github.event.client_payload.product || inputs.product }} formula
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve inputs
+        id: inputs
+        run: |
+          # Support both repository_dispatch and workflow_dispatch
+          PRODUCT="${{ github.event.client_payload.product || inputs.product }}"
+          VERSION="${{ github.event.client_payload.version || inputs.version }}"
+
+          echo "product=$PRODUCT" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Updating $PRODUCT to $VERSION"
+
+      - name: Make templater executable
+        run: chmod +x util/formula_templater.sh
+
+      - name: Generate formula
+        run: |
+          ./util/formula_templater.sh \
+            "${{ steps.inputs.outputs.product }}" \
+            "${{ steps.inputs.outputs.version }}"
+
+      - name: Verify formula was generated
+        run: |
+          PRODUCT="${{ steps.inputs.outputs.product }}"
+          if [[ ! -f "Formula/${PRODUCT}.rb" ]]; then
+            echo "Error: Formula/${PRODUCT}.rb was not generated"
+            exit 1
+          fi
+          echo "=== Generated formula ==="
+          cat "Formula/${PRODUCT}.rb"
+
+      - name: Commit and push
+        run: |
+          PRODUCT="${{ steps.inputs.outputs.product }}"
+          VERSION="${{ steps.inputs.outputs.version }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add "Formula/${PRODUCT}.rb"
+
+          # Only commit if there are actual changes
+          if git diff --staged --quiet; then
+            echo "No changes to formula — already up to date"
+          else
+            git commit -m "chore: update ${PRODUCT} formula to ${VERSION}"
+            git push
+            echo "Formula updated and pushed"
+          fi
