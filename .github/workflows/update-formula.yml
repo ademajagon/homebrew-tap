@@ -62,9 +62,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          git remote set-url origin https://x-access-token:${{ secrets.TAP_TOKEN }}@github.com/ademajagon/homebrew-tap.git
+
           git add "Formula/${PRODUCT}.rb"
 
-          # Only commit if there are actual changes
           if git diff --staged --quiet; then
             echo "No changes to formula — already up to date"
           else
