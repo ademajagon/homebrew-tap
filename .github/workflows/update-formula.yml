@@ -18,6 +18,8 @@ jobs:
   update:
     name: Update ${{ github.event.client_payload.product || inputs.product }} formula
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
