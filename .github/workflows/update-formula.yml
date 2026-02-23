@@ -3,7 +3,6 @@ name: Update Formula
 on:
   repository_dispatch:
     types: [formula-update]
-
   workflow_dispatch:
     inputs:
       product:
@@ -23,16 +22,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.TAP_TOKEN }}
 
       - name: Resolve inputs
         id: inputs
         run: |
-          # Support both repository_dispatch and workflow_dispatch
           PRODUCT="${{ github.event.client_payload.product || inputs.product }}"
           VERSION="${{ github.event.client_payload.version || inputs.version }}"
-
           echo "product=$PRODUCT" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Updating $PRODUCT to $VERSION"
@@ -57,23 +52,7 @@ jobs:
           cat "Formula/${PRODUCT}.rb"
 
       - name: Commit and push
-        run: |
-          PRODUCT="${{ steps.inputs.outputs.product }}"
-          VERSION="${{ steps.inputs.outputs.version }}"
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add "Formula/${PRODUCT}.rb"
-
-          if git diff --staged --quiet; then
-            echo "No changes to formula — already up to date"
-          else
-            git stash
-            git pull --rebase origin main
-            git stash pop
-            git add "Formula/${PRODUCT}.rb"
-            git commit -m "chore: update ${PRODUCT} formula to ${VERSION}"
-            git push origin main
-            echo "Formula updated and pushed"
-          fi
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update ${{ steps.inputs.outputs.product }} formula to ${{ steps.inputs.outputs.version }}"
+          file_pattern: "Formula/*.rb"
