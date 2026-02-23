@@ -64,14 +64,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin main
-          git rebase origin/main
-
           git add "Formula/${PRODUCT}.rb"
 
           if git diff --staged --quiet; then
             echo "No changes to formula — already up to date"
           else
+            git stash
+            git pull --rebase origin main
+            git stash pop
+            git add "Formula/${PRODUCT}.rb"
             git commit -m "chore: update ${PRODUCT} formula to ${VERSION}"
             git push origin main
             echo "Formula updated and pushed"
