@@ -58,20 +58,24 @@ jobs:
         run: |
           PRODUCT="${{ steps.inputs.outputs.product }}"
           VERSION="${{ steps.inputs.outputs.version }}"
+          FORMULA_PATH="Formula/${PRODUCT}.rb"
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git config --unset-all http.https://github.com/.extraheader
+          FILE_SHA=$(curl -s \
+            -H "Authorization: token ${{ secrets.TAP_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/ademajagon/homebrew-tap/contents/${FORMULA_PATH} \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)['sha'])")
 
-          git remote set-url origin https://x-access-token:${{ secrets.TAP_TOKEN }}@github.com/ademajagon/homebrew-tap.git
+          CONTENT=$(base64 -w 0 ${FORMULA_PATH})
 
-          git add "Formula/${PRODUCT}.rb"
+          curl --fail-with-body -X PUT \
+            -H "Authorization: token ${{ secrets.TAP_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/ademajagon/homebrew-tap/contents/${FORMULA_PATH} \
+            -d "{
+              \"message\": \"chore: update ${PRODUCT} formula to ${VERSION}\",
+              \"content\": \"${CONTENT}\",
+              \"sha\": \"${FILE_SHA}\"
+            }"
 
-          if git diff --staged --quiet; then
-            echo "No changes to formula, already up to date"
-          else
-            git commit -m "chore: update ${PRODUCT} formula to ${VERSION}"
-            git push
-            echo "Formula updated and pushed"
-          fi
+          echo "Formula updated via GitHub API"
