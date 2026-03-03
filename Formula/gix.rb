@@ -4,13 +4,13 @@
 class Gix < Formula
   desc "Git-enhancing CLI powered by AI"
   homepage "https://github.com/ademajagon/gix"
-  version "0.3.0"
+  version "0.3.1"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/ademajagon/gix/releases/download/v0.3.0/gix-darwin-arm64"
-      sha256 "f05e8e8c6b3d56dfa755c3412d4a1a835bf48906dd02345a64ddfad6a0d70974"
+      url "https://github.com/ademajagon/gix/releases/download/v0.3.1/gix-darwin-arm64"
+      sha256 "753ac2222ca73062320756fdb8144f0eeb168bfd7257469923bff55586b57df4"
 
       def install
         bin.install "gix-darwin-arm64" => "gix"
@@ -18,8 +18,8 @@ class Gix < Formula
     end
 
     if Hardware::CPU.intel?
-      url "https://github.com/ademajagon/gix/releases/download/v0.3.0/gix-darwin-amd64"
-      sha256 "08574225980dc36e45460837df5257fe3c557310c1ac65f4fd59cad9ad5902a3"
+      url "https://github.com/ademajagon/gix/releases/download/v0.3.1/gix-darwin-amd64"
+      sha256 "1cdce745f24f57ff11570679e3bdef14e4bd7c53adf1ff089150c39b282a3984"
 
       def install
         bin.install "gix-darwin-amd64" => "gix"
@@ -29,8 +29,8 @@ class Gix < Formula
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/ademajagon/gix/releases/download/v0.3.0/gix-linux-arm64"
-      sha256 "13774eda1dbcc033b55d4ca0f77ed6f8d7be4b80c4afa7866182ce78c6ce957a"
+      url "https://github.com/ademajagon/gix/releases/download/v0.3.1/gix-linux-arm64"
+      sha256 "aae2f84137f00021b16d1d572282db218b70ff4ccf36a146c0814acd917dbbde"
 
       def install
         bin.install "gix-linux-arm64" => "gix"
@@ -38,8 +38,8 @@ class Gix < Formula
     end
 
     if Hardware::CPU.intel?
-      url "https://github.com/ademajagon/gix/releases/download/v0.3.0/gix-linux-amd64"
-      sha256 "f3861af81e3d79f7dec3233bdbb259ded6a3ab180bf9f3866e7a91626d7fb7cb"
+      url "https://github.com/ademajagon/gix/releases/download/v0.3.1/gix-linux-amd64"
+      sha256 "e28aed14510c4ed272474674c26389a0287a93e4827d8e1ba415a6d5da43110d"
 
       def install
         bin.install "gix-linux-amd64" => "gix"
